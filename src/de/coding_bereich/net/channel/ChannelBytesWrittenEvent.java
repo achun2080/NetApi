@@ -9,7 +9,7 @@ public class ChannelBytesWrittenEvent extends ChannelEventAdapter
 		super(channel);
 		this.byteCount = byteCount;
 	}
-	
+
 	public int getByteCount()
 	{
 		return byteCount;

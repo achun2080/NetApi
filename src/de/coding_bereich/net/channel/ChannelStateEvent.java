@@ -4,31 +4,26 @@ public class ChannelStateEvent implements ChannelEvent
 {
 	static public enum State
 	{
-		OPEN,
-		CLOSE,
-		BIND,
-		UNBIND,
-		CONNECT,
-		DISCONNECT
+		OPEN, CLOSE, BIND, UNBIND, CONNECT, DISCONNECT
 	}
-	
-	private ChannelEventFuture future = new ChannelEventFuture(this);
-	private Channel channel;
-	private State state;
-	private Object value;
-	
+
+	private ChannelEventFuture	future	= new ChannelEventFuture(this);
+	private Channel				channel;
+	private State					state;
+	private Object					value;
+
 	public ChannelStateEvent(Channel channel, State state, Object value)
 	{
 		this.channel = channel;
 		this.state = state;
 		this.value = value;
 	}
-	
+
 	public State getState()
 	{
 		return state;
 	}
-	
+
 	public Object getValue()
 	{
 		return value;

@@ -7,14 +7,14 @@ import java.nio.channels.WritableByteChannel;
 
 /**
  * {@link IOBuffer} der eine Datei auf der Festplatte wiederspiegelt.
+ * 
  * @author Thomas
- *
+ * 
  */
 public class IOFileChannelInputBuffer extends AbstractIOBuffer
 {
-	private FileChannel channel;
-	
-	
+	private FileChannel	channel;
+
 	public IOFileChannelInputBuffer(FileChannel channel)
 	{
 		this.channel = channel;
@@ -28,11 +28,12 @@ public class IOFileChannelInputBuffer extends AbstractIOBuffer
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public byte readByte()
 	{
-		throw new IllegalArgumentException("use the get(WritableByteChannel channel[, ByteBuffer buffer]) method");
+		throw new IllegalArgumentException(
+				"use the get(WritableByteChannel channel[, ByteBuffer buffer]) method");
 	}
 
 	@Override
@@ -42,14 +43,14 @@ public class IOFileChannelInputBuffer extends AbstractIOBuffer
 
 	@Override
 	public int read(WritableByteChannel channel, int length, ByteBuffer buffer)
-		throws IOException
+			throws IOException
 	{
 		checkReadableBytes(length);
 		int read = (int) this.channel.transferTo(rPos, length, channel);
 		rPos += read;
 		return read;
 	}
-	
+
 	@Override
 	public int capacity()
 	{
@@ -58,8 +59,9 @@ public class IOFileChannelInputBuffer extends AbstractIOBuffer
 
 	@Override
 	public void capacity(int newCapacity)
-	{}
-	
+	{
+	}
+
 	@Override
 	protected void free0()
 	{
@@ -93,6 +95,6 @@ public class IOFileChannelInputBuffer extends AbstractIOBuffer
 
 	@Override
 	public void compact()
-	{		
+	{
 	}
 }

@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Kein vollständiger {@link InputStream}, da nicht blockierend.
- * Blockierende Streams, würden das restliche System zu sehr verlangsamen.
+ * Kein vollständiger {@link InputStream}, da nicht blockierend. Blockierende
+ * Streams, würden das restliche System zu sehr verlangsamen.
+ * 
  * @author Thomas
- *
+ * 
  */
 public class IOBufferInputStream extends InputStream
 {
@@ -26,7 +27,7 @@ public class IOBufferInputStream extends InputStream
 		{
 			if( !buffer.hasReadableBytes() )
 				return -1;
-			
+
 			return buffer.readByte() & 0xFF;
 		}
 		finally
@@ -43,9 +44,9 @@ public class IOBufferInputStream extends InputStream
 		{
 			if( !buffer.hasReadableBytes() )
 				return -1;
-			
+
 			buffer.read(b, offset, length);
-	
+
 			return length;
 		}
 		finally

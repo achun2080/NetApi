@@ -29,7 +29,6 @@ public class ImplReadableByteChannel implements ReadableByteChannel
 		int len = Math.min(dst.remaining(), dataLength);
 		len = Math.min(len, dataPartLength);
 
-
 		for(int i = 0; i < len; i++)
 			dst.put((byte) (i + dataOffset));
 

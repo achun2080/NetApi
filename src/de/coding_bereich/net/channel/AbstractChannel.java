@@ -44,7 +44,7 @@ public abstract class AbstractChannel implements Channel
 		write(event);
 		return event.getFuture();
 	}
-	
+
 	@Override
 	public ChannelEventFuture bind(SocketAddress addr)
 	{
@@ -53,7 +53,7 @@ public abstract class AbstractChannel implements Channel
 		write(event);
 		return event.getFuture();
 	}
-	
+
 	@Override
 	public ChannelEventFuture unbind()
 	{
@@ -63,7 +63,6 @@ public abstract class AbstractChannel implements Channel
 		return event.getFuture();
 	}
 
-	
 	@Override
 	public ChannelEventFuture connect(SocketAddress addr)
 	{
@@ -72,7 +71,7 @@ public abstract class AbstractChannel implements Channel
 		write(event);
 		return event.getFuture();
 	}
-	
+
 	@Override
 	public ChannelEventFuture disconnect()
 	{
@@ -150,38 +149,46 @@ public abstract class AbstractChannel implements Channel
 	}
 
 	abstract protected void bind0(SocketAddress addr) throws Exception;
+
 	abstract protected void unbind0() throws Exception;
 
 	abstract protected void connect0(SocketAddress addr) throws Exception;
+
 	abstract protected void disconnect0() throws Exception;
-	
+
 	protected void fireOpen()
 	{
-		fireIncomingEvent(new ChannelStateEvent(this, ChannelStateEvent.State.OPEN, null));
+		fireIncomingEvent(new ChannelStateEvent(this,
+				ChannelStateEvent.State.OPEN, null));
 	}
-	
+
 	protected void fireClose()
 	{
-		fireIncomingEvent(new ChannelStateEvent(this, ChannelStateEvent.State.CLOSE, null));
+		fireIncomingEvent(new ChannelStateEvent(this,
+				ChannelStateEvent.State.CLOSE, null));
 	}
-	
+
 	protected void fireBind(SocketAddress addr)
 	{
-		fireIncomingEvent(new ChannelStateEvent(this, ChannelStateEvent.State.BIND, addr));
+		fireIncomingEvent(new ChannelStateEvent(this,
+				ChannelStateEvent.State.BIND, addr));
 	}
-	
+
 	protected void fireUnbind()
 	{
-		fireIncomingEvent(new ChannelStateEvent(this, ChannelStateEvent.State.UNBIND, null));
+		fireIncomingEvent(new ChannelStateEvent(this,
+				ChannelStateEvent.State.UNBIND, null));
 	}
-	
+
 	protected void fireConnect(SocketAddress addr)
 	{
-		fireIncomingEvent(new ChannelStateEvent(this, ChannelStateEvent.State.CONNECT, addr));
+		fireIncomingEvent(new ChannelStateEvent(this,
+				ChannelStateEvent.State.CONNECT, addr));
 	}
-	
+
 	protected void fireDisconnect()
 	{
-		fireIncomingEvent(new ChannelStateEvent(this, ChannelStateEvent.State.DISCONNECT, null));
+		fireIncomingEvent(new ChannelStateEvent(this,
+				ChannelStateEvent.State.DISCONNECT, null));
 	}
 }

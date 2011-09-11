@@ -71,7 +71,6 @@ public class IOBufferChain extends AbstractIOBuffer
 			lastReadPos = rPos;
 		}
 	}
-	
 
 	@Override
 	public int read(WritableByteChannel channel, int length, ByteBuffer buffer)
@@ -97,7 +96,7 @@ public class IOBufferChain extends AbstractIOBuffer
 
 		return i;
 	}
-	
+
 	@Override
 	public void read(ByteBuffer bb, int length)
 	{

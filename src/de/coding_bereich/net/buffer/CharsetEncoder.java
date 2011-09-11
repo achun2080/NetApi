@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Encodiert ein String in ein {@link IOBuffer}.
+ * 
  * @author thomas
  * 
  */
@@ -17,24 +18,29 @@ public class CharsetEncoder
 {
 	static protected ByteBuffer	byteBuffer	= ByteBuffer.allocate(1024);
 
-	static protected Lock lock = new ReentrantLock();
-	
+	static protected Lock			lock			= new ReentrantLock();
+
 	/**
 	 * Encodiert ein String in ein {@link IOBuffer}.
-	 * @param in Der String als Eingabe.
-	 * @param out Der {@link IOBuffer} als Ausgabe.
-	 * @param charset Der Zeichensatz.
-	 * @param maxByteLength Maximale Anzahl an Bytes, die Codiert werden.
+	 * 
+	 * @param in
+	 *           Der String als Eingabe.
+	 * @param out
+	 *           Der {@link IOBuffer} als Ausgabe.
+	 * @param charset
+	 *           Der Zeichensatz.
+	 * @param maxByteLength
+	 *           Maximale Anzahl an Bytes, die Codiert werden.
 	 */
 	static public void encode(CharSequence in, IOBuffer out, String charset,
-			int maxByteLength)
+										int maxByteLength)
 	{
 		ByteBuffer bb;
 		CharBuffer cb;
-		
+
 		Thread thread = Thread.currentThread();
 		boolean useThreadVars = thread instanceof CharsetDecoderEncoderThread;
-		
+
 		if( useThreadVars )
 		{
 			CharsetDecoderEncoderThread thread1 = ((CharsetDecoderEncoderThread) thread);
@@ -42,11 +48,11 @@ public class CharsetEncoder
 		}
 		else
 			bb = byteBuffer;
-		
+
 		java.nio.charset.CharsetEncoder e = Charset.forName(charset).newEncoder();
 
 		cb = CharBuffer.wrap(in);
-		
+
 		e.reset();
 		byte[] replaceWith = { 0 };
 		e.replaceWith(replaceWith);
@@ -55,7 +61,7 @@ public class CharsetEncoder
 
 		if( !useThreadVars )
 			lock.lock();
-		
+
 		try
 		{
 			bb.clear();
@@ -103,9 +109,13 @@ public class CharsetEncoder
 
 	/**
 	 * Encodiert ein String in ein {@link IOBuffer}.
-	 * @param str Der String als Eingabe.
-	 * @param out Der {@link IOBuffer} als Ausgabe.
-	 * @param charset Der Zeichensatz.
+	 * 
+	 * @param str
+	 *           Der String als Eingabe.
+	 * @param out
+	 *           Der {@link IOBuffer} als Ausgabe.
+	 * @param charset
+	 *           Der Zeichensatz.
 	 */
 	static public void encode(CharSequence str, IOBuffer out, String charset)
 	{

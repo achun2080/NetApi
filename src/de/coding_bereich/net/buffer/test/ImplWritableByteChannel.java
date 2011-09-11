@@ -6,11 +6,11 @@ import java.nio.channels.WritableByteChannel;
 
 public class ImplWritableByteChannel implements WritableByteChannel
 {
-	public int		dataOffset	= 0;
+	public int		dataOffset		= 0;
 	public int		dataPartLength	= 2;
-	public int		freeSpace	= 10;
-	public boolean	open			= true;
-	public boolean	failure		= false;
+	public int		freeSpace		= 10;
+	public boolean	open				= true;
+	public boolean	failure			= false;
 
 	@Override
 	public boolean isOpen()
@@ -29,14 +29,14 @@ public class ImplWritableByteChannel implements WritableByteChannel
 	{
 		int len = Math.min(src.remaining(), freeSpace);
 		len = Math.min(len, dataPartLength);
-		
+
 		for(int i = 0; i < len; i++)
-			if( (byte)(i+dataOffset) != src.get() )
+			if( (byte) (i + dataOffset) != src.get() )
 				failure = true;
 
 		freeSpace -= len;
 		dataOffset += len;
-		
+
 		return len;
 	}
 }

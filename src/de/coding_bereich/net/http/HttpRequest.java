@@ -5,10 +5,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.coding_bereich.net.channel.Channel;
+
 /**
  * Eine HTTP-Anfrage.
+ * 
  * @author Thomas
- *
+ * 
  */
 public class HttpRequest
 {
@@ -207,7 +209,7 @@ public class HttpRequest
 	{
 		if( session != null )
 			return session;
-		
+
 		String sessId = getCookie(SESSION_COOKIE_NAME);
 
 		session = HttpSessionManager.getInstance().getSession(sessId);

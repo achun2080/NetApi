@@ -5,7 +5,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-
 public class AcceptableNIOChannel extends AbstractNIOChannel
 {
 	private ChannelEventHandlerFactory	handlerFactory;
@@ -15,45 +14,43 @@ public class AcceptableNIOChannel extends AbstractNIOChannel
 	{
 		super();
 		ServerSocketChannel channel = ServerSocketChannel.open();
- 		channel.socket().bind(address);
+		channel.socket().bind(address);
 
- 		channel.configureBlocking(false);
- 		
- 		this.nioChannel = channel;
- 		
+		channel.configureBlocking(false);
+
+		this.nioChannel = channel;
+
 		registerToDispatcher(dispatcher);
-		
+
 		fireOpen();
-		
+
 		fireBind(address);
 	}
 
-	public AcceptableNIOChannel(NIODispatcher dispatcher)
-		throws Exception
+	public AcceptableNIOChannel(NIODispatcher dispatcher) throws Exception
 	{
 		super();
 		ServerSocketChannel channel = ServerSocketChannel.open();
 		channel.configureBlocking(false);
-		
+
 		this.nioChannel = channel;
-		
+
 		registerToDispatcher(dispatcher);
-		
+
 		fireOpen();
 	}
-	
-	public AcceptableNIOChannel()
-		throws Exception
+
+	public AcceptableNIOChannel() throws Exception
 	{
 		super();
 		ServerSocketChannel channel = ServerSocketChannel.open();
 		channel.configureBlocking(false);
-		
+
 		this.nioChannel = channel;
-		
+
 		fireOpen();
 	}
-	
+
 	@Override
 	public void onNIOEvent(SelectionKey key)
 	{
@@ -63,8 +60,9 @@ public class AcceptableNIOChannel extends AbstractNIOChannel
 			{
 				SocketChannel socketChannel = ((ServerSocketChannel) nioChannel)
 						.accept();
-				
-				Channel channel = new ReadWritableNIOChannel(socketChannel, dispatcher);	
+
+				Channel channel = new ReadWritableNIOChannel(socketChannel,
+						dispatcher);
 				if( handlerFactory != null )
 					channel.setHandler(handlerFactory.getHandler(channel));
 			}
@@ -74,7 +72,7 @@ public class AcceptableNIOChannel extends AbstractNIOChannel
 			// TODO ....
 		}
 	}
-	
+
 	@Override
 	protected boolean handleOutgoingEvent(ChannelEvent event) throws Exception
 	{
@@ -89,8 +87,7 @@ public class AcceptableNIOChannel extends AbstractNIOChannel
 	}
 
 	@Override
-	public void registerToDispatcher(NIODispatcher dispatcher)
-		throws Exception
+	public void registerToDispatcher(NIODispatcher dispatcher) throws Exception
 	{
 		this.dispatcher = dispatcher;
 		dispatcher.addChannel(this, SelectionKey.OP_ACCEPT);
@@ -101,11 +98,10 @@ public class AcceptableNIOChannel extends AbstractNIOChannel
 		handlerFactory = factory;
 	}
 
-
 	@Override
 	public boolean isBound()
 	{
-		return isOpen() && ((ServerSocketChannel)nioChannel).socket().isBound();
+		return isOpen() && ((ServerSocketChannel) nioChannel).socket().isBound();
 	}
 
 	@Override
@@ -120,7 +116,7 @@ public class AcceptableNIOChannel extends AbstractNIOChannel
 		super.close0();
 		fireClose();
 	}
-	
+
 	@Override
 	protected void connect0(SocketAddress addr) throws Exception
 	{
@@ -130,7 +126,7 @@ public class AcceptableNIOChannel extends AbstractNIOChannel
 	@Override
 	protected void disconnect0() throws Exception
 	{
-		throw new UnsupportedOperationException();		
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -143,7 +139,7 @@ public class AcceptableNIOChannel extends AbstractNIOChannel
 	@Override
 	protected void unbind0() throws Exception
 	{
-		throw new UnsupportedOperationException();		
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -157,11 +153,11 @@ public class AcceptableNIOChannel extends AbstractNIOChannel
 	{
 		return false;
 	}
-	
+
 	@Override
 	public SocketAddress getLocalAddress()
 	{
-		return ((SocketChannel)nioChannel).socket().getLocalSocketAddress();
+		return ((SocketChannel) nioChannel).socket().getLocalSocketAddress();
 	}
 
 	@Override

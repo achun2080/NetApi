@@ -86,6 +86,7 @@ public class ChannelEventFuture
 
 	/**
 	 * Bricht alle IO-Tasks ab.
+	 * 
 	 * @return
 	 */
 	synchronized public boolean cancel()

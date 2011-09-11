@@ -144,7 +144,7 @@ public class ReadWritableNIOChannel extends AbstractNIOChannel
 
 		ByteBuffer byteBuffer = dispatcher.pollByteBuffer();
 		try
-		{			
+		{
 			int writtenBytes = buffer.read(	(WritableByteChannel) nioChannel,
 														byteBuffer);
 

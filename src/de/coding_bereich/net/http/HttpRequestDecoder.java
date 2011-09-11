@@ -10,18 +10,21 @@ import de.coding_bereich.net.buffer.IOBuffer;
 import de.coding_bereich.net.buffer.exception.BufferUnderflowException;
 import de.coding_bereich.net.channel.ChannelMessageEvent;
 import de.coding_bereich.net.channel.pipeline.PipelineDecoder;
+
 /**
- * Decodiert den Byte-Strom zu einem HttpRequest.
- * Es wird HTTP 1.0 unterstützt.
+ * Decodiert den Byte-Strom zu einem HttpRequest. Es wird HTTP 1.0 unterstützt.
+ * 
  * @author Thomas
- *
+ * 
  */
-public class HttpRequestDecoder extends PipelineDecoder<HttpRequestDecoder.State>
+public class HttpRequestDecoder extends
+		PipelineDecoder<HttpRequestDecoder.State>
 {
 	private HttpRequest				request;
 
 	static public final String		HEADER_CHARSET	= "UTF-8";
-	static public final byte[][]	LINE_DELIMITER	= {{'\r','\n'}, {'\r'}, {'\n'}};
+	static public final byte[][]	LINE_DELIMITER	= { { '\r', '\n' }, { '\r' },
+			{ '\n' }										};
 
 	static private Pattern			uriPattern		= Pattern
 																		.compile("^(.*?://([^/?#]*))?(\\/[^?#]*)(\\?([^#]*))?(#(.*))?$");
@@ -37,8 +40,8 @@ public class HttpRequestDecoder extends PipelineDecoder<HttpRequestDecoder.State
 	}
 
 	@Override
-	protected Object decode(State state, IOBuffer buffer, ChannelMessageEvent event)
-			throws Exception
+	protected Object decode(State state, IOBuffer buffer,
+									ChannelMessageEvent event) throws Exception
 	{
 		try
 		{
@@ -50,9 +53,9 @@ public class HttpRequestDecoder extends PipelineDecoder<HttpRequestDecoder.State
 					if( request == null )
 						request = new HttpRequest(event.getChannel());
 
-					line = buffer.readDelimitedString(LINE_DELIMITER, HEADER_CHARSET);
+					line = buffer
+							.readDelimitedString(LINE_DELIMITER, HEADER_CHARSET);
 
-					
 					String[] firstLine = line.split(" ");
 					request.setMethod(firstLine[0].trim());
 					request.setPlainUri(firstLine[1].trim());
@@ -62,10 +65,10 @@ public class HttpRequestDecoder extends PipelineDecoder<HttpRequestDecoder.State
 
 				case HEADER:
 					while( true )
-					{					
-						line = buffer.readDelimitedString(LINE_DELIMITER,
-								HEADER_CHARSET);
-						
+					{
+						line = buffer.readDelimitedString(	LINE_DELIMITER,
+																		HEADER_CHARSET);
+
 						if( line.length() == 0 )
 							break;
 
@@ -130,26 +133,30 @@ public class HttpRequestDecoder extends PipelineDecoder<HttpRequestDecoder.State
 					{
 						String contentType = request.getHeader("content-type");
 						if( contentType != null
-								&& contentType.indexOf("application/x-www-form-urlencoded") < 0 )
+								&& contentType
+										.indexOf("application/x-www-form-urlencoded") < 0 )
 							break postDecode;
 
-						String contentLengthString = request.getHeader("content-length");
+						String contentLengthString = request
+								.getHeader("content-length");
 
 						if( contentLengthString == null )
 						{
-							onDecodeError(request, "POST-Request: Content-Length is not set", event);
+							onDecodeError(	request,
+												"POST-Request: Content-Length is not set",
+												event);
 							return null;
 						}
 
 						int contentLength = Integer.parseInt(contentLengthString);
 
-						String body = buffer.readString(contentLength, HEADER_CHARSET);
+						String body = buffer
+								.readString(contentLength, HEADER_CHARSET);
 						parseVars(body, request.getPostVars());
 					}
-					
-					
+
 					HttpRequest req = request;
-					request = null;					
+					request = null;
 					return req;
 			}
 		}
@@ -167,7 +174,8 @@ public class HttpRequestDecoder extends PipelineDecoder<HttpRequestDecoder.State
 	}
 
 	private HashMap<String, String> parseVars(String in,
-			HashMap<String, String> ret) throws Exception
+															HashMap<String, String> ret)
+			throws Exception
 	{
 		String[] vars = in.split("&");
 
@@ -186,11 +194,12 @@ public class HttpRequestDecoder extends PipelineDecoder<HttpRequestDecoder.State
 		return ret;
 	}
 
-	private void onDecodeError(HttpRequest request, String error, ChannelMessageEvent event)
+	private void onDecodeError(HttpRequest request, String error,
+										ChannelMessageEvent event)
 	{
 		if( request == null )
 			return;
-		
+
 		HttpResponse response = request.getResponse();
 		response.setCode(400);
 		response.setBodyBuffer(DynamicIOBuffer.create());

@@ -103,19 +103,20 @@ public class HttpResponseEncoder extends PipelineMessageDownstreamHandler
 		if( response.getBodyBuffer() != null
 				&& !"head".equals(response.getRequest().getMethod()) )
 		{
-			context.sendDownstream(headIoBuffer).addListener(new ChannelEventFutureListener()
-			{
-				
-				@Override
-				public void onAction(ChannelEventFuture future)
-				{
-					System.out.println(future.getException());
-				}
-			});;
+			context.sendDownstream(headIoBuffer)
+					.addListener(new ChannelEventFutureListener()
+					{
+
+						@Override
+						public void onAction(ChannelEventFuture future)
+						{
+							System.out.println(future.getException());
+						}
+					});;
 			context.sendDownstream(response.getBodyBuffer())
 					.addListener(new ChannelEventFutureListener()
 					{
-						
+
 						@Override
 						public void onAction(ChannelEventFuture future)
 						{

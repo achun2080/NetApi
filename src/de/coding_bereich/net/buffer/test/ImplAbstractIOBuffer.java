@@ -2,11 +2,10 @@ package de.coding_bereich.net.buffer.test;
 
 import de.coding_bereich.net.buffer.AbstractIOBuffer;
 
-public class ImplAbstractIOBuffer
-	extends AbstractIOBuffer
+public class ImplAbstractIOBuffer extends AbstractIOBuffer
 {
-	private byte[] buffer = new byte[512];
-	
+	private byte[]	buffer	= new byte[512];
+
 	@Override
 	public boolean isReadable()
 	{

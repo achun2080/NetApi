@@ -6,8 +6,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Sich selbst erweiternder {@link IOBuffer}.
+ * 
  * @author Thomas
- *
+ * 
  */
 public class DynamicIOBuffer extends AbstractIOBuffer
 {
@@ -102,7 +103,7 @@ public class DynamicIOBuffer extends AbstractIOBuffer
 
 			System.arraycopy(src, srcPos, array, i + destOffset, len);
 		}
-		
+
 		rPos += length;
 	}
 
@@ -123,10 +124,10 @@ public class DynamicIOBuffer extends AbstractIOBuffer
 
 			System.arraycopy(array, i + offset, dest, destPos, len);
 		}
-		
+
 		wPos += length;
 	}
-	
+
 	@Override
 	public void read(ByteBuffer bb, int length)
 	{
@@ -144,10 +145,10 @@ public class DynamicIOBuffer extends AbstractIOBuffer
 
 			bb.put(src, srcPos, len);
 		}
-		
+
 		rPos += length;
 	}
-	
+
 	@Override
 	public void write(ByteBuffer bb, int length)
 	{
@@ -165,25 +166,25 @@ public class DynamicIOBuffer extends AbstractIOBuffer
 
 			bb.get(dest, destPos, len);
 		}
-		
+
 		wPos += length;
 	}
 
 	public static DynamicIOBuffer create()
 	{
-//		DynamicIOBuffer buffer = queue.poll();
-//
-//		if( buffer != null )
-//		{
-//			buffer.referenceCounter = 1;
-//			buffer.observerList = null;
-//			buffer.clear();
-//
-//			queueSize.addAndGet(-buffer.capacity());
-//		}
-//		else
+		// DynamicIOBuffer buffer = queue.poll();
+		//
+		// if( buffer != null )
+		// {
+		// buffer.referenceCounter = 1;
+		// buffer.observerList = null;
+		// buffer.clear();
+		//
+		// queueSize.addAndGet(-buffer.capacity());
+		// }
+		// else
 		DynamicIOBuffer buffer = new DynamicIOBuffer();
-		
+
 		return buffer;
 	}
 
@@ -229,6 +230,6 @@ public class DynamicIOBuffer extends AbstractIOBuffer
 	public void compact()
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 }

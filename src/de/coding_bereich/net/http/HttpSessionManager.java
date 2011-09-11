@@ -2,12 +2,12 @@ package de.coding_bereich.net.http;
 
 import java.util.HashMap;
 
-
 //TODO: Löschen alter Session implementieren.
 /**
  * Verwaltet alle Sessionen im System.
+ * 
  * @author Thomas
- *
+ * 
  */
 public class HttpSessionManager
 {
@@ -17,7 +17,7 @@ public class HttpSessionManager
 
 	private HashMap<String, HttpSession>		sessions	= new HashMap<String, HttpSession>();
 
-	//private IWatchdogTask							watchdogTask;
+	// private IWatchdogTask watchdogTask;
 
 	static public HttpSessionManager getInstance()
 	{
@@ -27,30 +27,21 @@ public class HttpSessionManager
 	private HttpSessionManager()
 	{
 		/*
-		IWatchdogTask task = new IWatchdogTask()
-		{
-			@Override
-			public void runWatchdogTask(long time)
-			{
-				long minTime = time - lifeTime;
-
-				synchronized(sessions)
-				{
-					Iterator<HttpSession> it = sessions.values().iterator();
-					while( it.hasNext() )
-					{
-						HttpSession session = (HttpSession) it.next();
-
-						if( session.getLastUseMillis() < minTime )
-							remove(session.getId());
-					}
-				}
-			}
-		};
-
-		watchdogTask = task;
-
-		//Watchdog.getInstance().addTask(task, lifeTime);
+		 * IWatchdogTask task = new IWatchdogTask() {
+		 * 
+		 * @Override public void runWatchdogTask(long time) { long minTime = time
+		 * - lifeTime;
+		 * 
+		 * synchronized(sessions) { Iterator<HttpSession> it =
+		 * sessions.values().iterator(); while( it.hasNext() ) { HttpSession
+		 * session = (HttpSession) it.next();
+		 * 
+		 * if( session.getLastUseMillis() < minTime ) remove(session.getId()); } }
+		 * } };
+		 * 
+		 * watchdogTask = task;
+		 * 
+		 * //Watchdog.getInstance().addTask(task, lifeTime);
 		 */
 	}
 
@@ -65,18 +56,18 @@ public class HttpSessionManager
 				session.setLastUseMillis(System.currentTimeMillis());
 				return session;
 			}
-			
+
 			if( sessionId != null )
 				session = new HttpSession(sessionId);
 			else
 				session = new HttpSession();
-			
+
 			session.setLastUseMillis(System.currentTimeMillis());
 			sessions.put(session.getId(), session);
 			return session;
 		}
 	}
-	
+
 	public HttpSession remove(String sessionId)
 	{
 		synchronized(sessions)
@@ -93,6 +84,6 @@ public class HttpSessionManager
 	public void setLifeTime(long lifeTime)
 	{
 		this.lifeTime = lifeTime;
-		//Watchdog.getInstance().setTaskInterval(watchdogTask, lifeTime);
+		// Watchdog.getInstance().setTaskInterval(watchdogTask, lifeTime);
 	}
 }

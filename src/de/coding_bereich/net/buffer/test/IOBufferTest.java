@@ -26,7 +26,7 @@ public class IOBufferTest
 	/**
 	 * 
 	 */
-	
+
 	/**
 	 * Test method for
 	 * {@link de.coding_bereich.net.buffer.AbstractIOBuffer#hasReadableBytes()}.
@@ -50,15 +50,14 @@ public class IOBufferTest
 	public void testHasWritableBytes()
 	{
 		/*
-		IOBuffer b = getNewBuffer();
-
-		assertTrue(b.hasWritableBytes());
-
-		for(int i = 0; i < 512; i++)
-			b.writeByte((byte) 7);
-
-		assertTrue(!b.hasWritableBytes() && !b.isExtendable());
-		*/
+		 * IOBuffer b = getNewBuffer();
+		 * 
+		 * assertTrue(b.hasWritableBytes());
+		 * 
+		 * for(int i = 0; i < 512; i++) b.writeByte((byte) 7);
+		 * 
+		 * assertTrue(!b.hasWritableBytes() && !b.isExtendable());
+		 */
 	}
 
 	/**
@@ -312,7 +311,7 @@ public class IOBufferTest
 	/**
 	 * Test method for
 	 * {@link de.coding_bereich.net.buffer.AbstractIOBuffer#read(java.nio.channels.WritableByteChannel, int, java.nio.ByteBuffer)}
-	 * and  
+	 * and
 	 * {@link de.coding_bereich.net.buffer.AbstractIOBuffer#write(java.nio.channels.ReadableByteChannel, int, java.nio.ByteBuffer)}
 	 * .
 	 */
@@ -348,7 +347,7 @@ public class IOBufferTest
 		assertFalse(wBC.failure);
 		assertEquals(0, rBC.dataLength);
 		assertEquals(0, wBC.freeSpace);
-		
+
 	}
 
 	/**
@@ -611,22 +610,11 @@ public class IOBufferTest
 	private IOBuffer getNewBuffer()
 	{
 		/*
-		try
-		{
-			return clazz.newInstance();
-		}
-		catch(InstantiationException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch(IllegalAccessException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-		*/
+		 * try { return clazz.newInstance(); } catch(InstantiationException e) {
+		 * // TODO Auto-generated catch block e.printStackTrace(); }
+		 * catch(IllegalAccessException e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(); } return null;
+		 */
 		return DynamicIOBuffer.create();
 	}
 }

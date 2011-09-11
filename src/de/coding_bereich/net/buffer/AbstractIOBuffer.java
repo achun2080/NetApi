@@ -17,26 +17,26 @@ import de.coding_bereich.net.buffer.exception.NotWritableBufferException;
 
 /**
  * Grundimplemetierung des {@link IOBuffer}s.
+ * 
  * @author Thomas
- *
+ * 
  */
 public abstract class AbstractIOBuffer implements IOBuffer
 {
 	// read position
-	protected int										rPos					= 0;
+	protected int									rPos					= 0;
 
 	// write position
-	protected int										wPos					= 0;
+	protected int									wPos					= 0;
 
-	protected ByteOrder								order					= ByteOrder.BIG_ENDIAN;
+	protected ByteOrder							order					= ByteOrder.BIG_ENDIAN;
 
+	protected int									referenceCounter	= 1;
 
-	protected int										referenceCounter	= 1;
-
-	protected Lock										lock					= new ReentrantLock();
+	protected Lock									lock					= new ReentrantLock();
 
 	protected LinkedList<IOBufferObserver>	observerList		= null;
-	
+
 	protected void checkWritableBytes(int len)
 	{
 		if( !isWritable() )
@@ -89,7 +89,6 @@ public abstract class AbstractIOBuffer implements IOBuffer
 
 		observerList.add(observer);
 	}
-
 
 	@Override
 	public double readDouble()
@@ -306,7 +305,6 @@ public abstract class AbstractIOBuffer implements IOBuffer
 		return rPos;
 	}
 
-
 	@Override
 	public int getReadableBytes()
 	{
@@ -356,7 +354,7 @@ public abstract class AbstractIOBuffer implements IOBuffer
 	@Override
 	public int read(ByteBuffer bb)
 	{
-		int length = Math.min(getReadableBytes(), bb.remaining());	
+		int length = Math.min(getReadableBytes(), bb.remaining());
 		read(bb, length);
 		return length;
 	}
@@ -365,11 +363,11 @@ public abstract class AbstractIOBuffer implements IOBuffer
 	public void read(ByteBuffer bb, int length)
 	{
 		checkReadableBytes(length);
-		
+
 		if( bb.hasArray() )
 		{
 			read(bb.array(), bb.position(), length);
-			bb.position(bb.position()+length);
+			bb.position(bb.position() + length);
 		}
 		else
 		{
@@ -377,7 +375,6 @@ public abstract class AbstractIOBuffer implements IOBuffer
 				bb.put(readByte());
 		}
 	}
-
 
 	@Override
 	public int read(WritableByteChannel channel) throws IOException
@@ -395,8 +392,8 @@ public abstract class AbstractIOBuffer implements IOBuffer
 	}
 
 	@Override
-	public int read(WritableByteChannel channel, int length,
-			ByteBuffer buffer) throws IOException
+	public int read(WritableByteChannel channel, int length, ByteBuffer buffer)
+			throws IOException
 	{
 		checkReadableBytes(length);
 
@@ -427,7 +424,7 @@ public abstract class AbstractIOBuffer implements IOBuffer
 		}
 
 		buffer.clear();
-		
+
 		return pos;
 	}
 
@@ -449,13 +446,13 @@ public abstract class AbstractIOBuffer implements IOBuffer
 		while( true )
 		{
 			buffer.clear();
-			
+
 			if( !isExtendable() && buffer.remaining() > getWritableBytes() )
 				if( buffer.remaining() == 0 )
 					throw new BufferOverflowException();
 				else
 					buffer.limit(getWritableBytes());
-				
+
 			try
 			{
 				count = channel.read(buffer);
@@ -467,7 +464,7 @@ public abstract class AbstractIOBuffer implements IOBuffer
 
 			if( count <= 0 )
 				break;
-			
+
 			buffer.flip();
 
 			write(buffer);
@@ -510,7 +507,7 @@ public abstract class AbstractIOBuffer implements IOBuffer
 
 	@Override
 	public String readDelimitedString(String[] delimiters, String charset,
-			int maxByteLength)
+													int maxByteLength)
 	{
 		byte[][] byteArray = new byte[delimiters.length][];
 		int len = delimiters.length;
@@ -534,7 +531,7 @@ public abstract class AbstractIOBuffer implements IOBuffer
 
 	@Override
 	public String readDelimitedString(byte[][] delimiters, String charset,
-			int maxByteLength)
+													int maxByteLength)
 	{
 		int startPos = getReadPosition();
 
@@ -628,7 +625,7 @@ public abstract class AbstractIOBuffer implements IOBuffer
 	public void write(ByteBuffer bb, int length)
 	{
 		checkWritableBytes(length);
-		
+
 		if( bb.hasArray() )
 		{
 			write(bb.array(), bb.position(), length);
@@ -685,7 +682,8 @@ public abstract class AbstractIOBuffer implements IOBuffer
 	}
 
 	@Override
-	public void writePrefixedString(int prefixLen, CharSequence str, String charset)
+	public void writePrefixedString(int prefixLen, CharSequence str,
+												String charset)
 	{
 		int maxLen;
 
@@ -737,33 +735,32 @@ public abstract class AbstractIOBuffer implements IOBuffer
 	{
 		return (short) (0xFF & readByte());
 	}
-	
+
 	public void writeUnsignedByte(short a)
 	{
-		writeByte((byte)a);
+		writeByte((byte) a);
 	}
-	
+
 	public int readUnsignedShort()
 	{
 		return (int) (0xFFFF & readShort());
 	}
-	
+
 	public void writeUnsignedShort(int a)
 	{
-		writeShort((short)a);
+		writeShort((short) a);
 	}
-	
+
 	public long readUnsignedInteger()
 	{
 		return (long) (0xFFFFFFFFL & readInteger());
 	}
-	
+
 	public void writeUnsignedInteger(long a)
 	{
-		writeInteger((int)a);
+		writeInteger((int) a);
 	}
-	
-	
+
 	@Override
 	public void flush()
 	{
@@ -784,12 +781,11 @@ public abstract class AbstractIOBuffer implements IOBuffer
 	@Override
 	public void free()
 	{
-		
+
 		if( --referenceCounter == 0 )
 			free0();
 	}
 
-	
 	@Override
 	public String toString()
 	{

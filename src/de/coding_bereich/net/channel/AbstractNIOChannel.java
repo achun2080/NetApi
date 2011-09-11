@@ -3,14 +3,11 @@ package de.coding_bereich.net.channel;
 import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 
-
-public abstract class AbstractNIOChannel
-	extends AbstractChannel
-	implements NIOChannel
+public abstract class AbstractNIOChannel extends AbstractChannel implements
+		NIOChannel
 {
-	protected Channel					nioChannel;
-	protected NIODispatcher			dispatcher;
-		
+	protected Channel			nioChannel;
+	protected NIODispatcher	dispatcher;
 
 	@Override
 	public void finalWrite(ChannelEvent event)
@@ -39,8 +36,8 @@ public abstract class AbstractNIOChannel
 				dispatcher.setInterestOps(this, dispatcher.getInterestOps(this)
 						| SelectionKey.OP_WRITE);
 		}
-		
-		if(result)
+
+		if( result )
 			event.getFuture().onSuccess();
 	}
 
@@ -82,12 +79,10 @@ public abstract class AbstractNIOChannel
 
 		dispatcher.removeChannel(this);
 		nioChannel.close();
-		
+
 		return;
 	}
 
-	
-	
 	@Override
 	public Channel getNIOChannel()
 	{
