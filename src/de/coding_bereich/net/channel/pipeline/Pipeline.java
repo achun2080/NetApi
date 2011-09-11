@@ -1,162 +1,158 @@
 package de.coding_bereich.net.channel.pipeline;
 
-import de.coding_bereich.net.channel.ChannelEvent;
 import de.coding_bereich.net.channel.Channel;
+import de.coding_bereich.net.channel.ChannelEvent;
+import de.coding_bereich.net.channel.ChannelEventFuture;
 import de.coding_bereich.net.channel.ChannelHandler;
+import de.coding_bereich.net.channel.ChannelMessageEvent;
 
-
-public class Pipeline
-	implements ChannelHandler
+public class Pipeline implements ChannelHandler
 {
-	private Channel channel;
-	
-	private Entry firstEntry;
-	private Entry lastEntry;
-	
+	private Channel			channel;
+
+	private HandlerContext	firstEntry;
+	private HandlerContext	lastEntry;
+
+	public Pipeline(Channel channel)
+	{
+		this.channel = channel;
+	}
+
 	@Override
 	public void onIncomingMessage(ChannelEvent event)
 	{
-		for(Entry entry = firstEntry; entry != null; entry = entry.next)
+		try
 		{
-			if( !(entry.handler instanceof PipelineUpstreamHandler) ) 
-				continue;
-			
-			PipelineUpstreamHandler handler = (PipelineUpstreamHandler) entry.handler;
-			
-			try
-			{
-				if( !handler.onUpstreamEvent(event) )
+			if( firstEntry != null )
+				if( firstEntry.isUpstreamHander() )
 				{
-					event.getFuture().onCancel();
-					return;
+					PipelineUpstreamHandler handler = (PipelineUpstreamHandler) firstEntry
+							.getHandler();
+					handler.onUpstreamEvent(event, firstEntry);
 				}
-			}
-			catch(Exception e)
-			{
-				event.getFuture().onException(e);
-				return;
-			}
+				else
+					firstEntry.sendUpstream(event);
 		}
-		
-		event.getFuture().onCancel();
+		catch(Exception e)
+		{
+			event.getFuture().onException(e);
+		}
 	}
 
 	@Override
 	public void onOutgoingMessage(ChannelEvent event)
 	{
-		for(Entry entry = lastEntry; entry != null; entry = entry.prev)
+		try
 		{
-			if( !(entry.handler instanceof PipelineDownstreamHandler) ) 
-				continue;
-			
-			PipelineDownstreamHandler handler = (PipelineDownstreamHandler) entry.handler;
-			
-			try
-			{
-				if( !handler.onDownstreamEvent(event) )
+			if( lastEntry != null )
+				if( lastEntry.isDownstreamHander() )
 				{
-					event.getFuture().onCancel();
-					return;
+					PipelineDownstreamHandler handler = (PipelineDownstreamHandler) lastEntry
+							.getHandler();
+					handler.onDownstreamEvent(event, lastEntry);
 				}
-			}
-			catch(Exception e)
-			{
-				event.getFuture().onException(e);
-				return;
-			}
+				else
+					lastEntry.sendDownstream(event);
+			else
+				channel.finalWrite(event);
 		}
-		
-		event.getChannel().finalWrite(event);
+		catch(Exception e)
+		{
+			event.getFuture().onException(e);
+		}
 	}
-	
+
 	public void addFirst(String name, PipelineHandler handler)
 	{
-		Entry old = firstEntry;
-		
+		HandlerContext old = firstEntry;
+
 		if( old == null )
 		{
-			firstEntry = lastEntry = new Entry(name, null, null, handler);
+			firstEntry = lastEntry = new HandlerContext(name, null, null, handler,
+					this);
 			return;
 		}
-		
+
 		callBeforeAdd(handler);
-		firstEntry = new Entry(name, null, old, handler);
+		firstEntry = new HandlerContext(name, null, old, handler, this);
 		callAfterAdd(handler);
 	}
-	
+
 	public void addLast(String name, PipelineHandler handler)
 	{
-		Entry old = lastEntry;
-		
+		HandlerContext old = lastEntry;
+
 		if( old == null )
 		{
-			firstEntry = lastEntry = new Entry(name, null, null, handler);
+			firstEntry = lastEntry = new HandlerContext(name, null, null, handler,
+					this);
 			return;
 		}
-		
+
 		callBeforeAdd(handler);
-		lastEntry = old.next = new Entry(name, old, null, handler);
+		lastEntry = old.next = new HandlerContext(name, old, null, handler, this);
 		callAfterAdd(handler);
 	}
-	
+
 	public void replace(String name, String newName, PipelineHandler handler)
 	{
-		Entry entry = firstEntry;
-		
+		HandlerContext entry = firstEntry;
+
 		while( entry != null )
 		{
 			if( entry.name.equals(name) )
 			{
 				PipelineHandler oldHandler = entry.handler;
-				
+
 				callBeforeRemove(oldHandler);
 				callBeforeAdd(handler);
-				
+
 				entry.name = newName;
 				entry.handler = handler;
-				
+
 				callAfterAdd(handler);
 				callAfterRemove(oldHandler);
-				
+
 				return;
 			}
-			
+
 			entry = entry.next;
 		}
-		
-		//TODO: exception
+
+		// TODO: exception
 	}
-	
+
 	public void addAfter(String name, String newName, PipelineHandler handler)
 	{
-		Entry entry = firstEntry;
-		
+		HandlerContext entry = firstEntry;
+
 		while( entry != null )
 		{
 			if( entry.name.equals(name) )
 			{
 				callBeforeAdd(handler);
-				
-				Entry newEntry = new Entry(newName, entry, entry.next, handler);
+
+				HandlerContext newEntry = new HandlerContext(newName, entry,
+						entry.next, handler, this);
 				entry.next.prev = newEntry;
 				entry.next = newEntry;
-				
+
 				callAfterAdd(handler);
-				
+
 				return;
 			}
-			
+
 			entry = entry.next;
 		}
-		
-		//TODO: exception
+
+		// TODO: exception
 	}
-	
+
 	public void addBefore(String name, String newName, PipelineHandler handler)
 	{
-		Entry entryBefore = null;
-		Entry entry = firstEntry;
-		
+		HandlerContext entryBefore = null;
+		HandlerContext entry = firstEntry;
+
 		while( entry != null )
 		{
 			if( entry.name.equals(name) )
@@ -166,85 +162,163 @@ public class Pipeline
 				else
 				{
 					callBeforeAdd(handler);
-					
-					Entry newEntry = new Entry(newName, entryBefore, entry, handler);
+
+					HandlerContext newEntry = new HandlerContext(newName,
+							entryBefore, entry, handler, this);
 					entryBefore.next.prev = newEntry;
 					entryBefore.next = newEntry;
-					
+
 					callAfterAdd(handler);
 				}
-				
+
 				return;
 			}
-			
+
 			entryBefore = entry;
 			entry = entry.next;
 		}
-		
-		//TODO: exception
+
+		// TODO: exception
 	}
-	
-	
+
 	private void callBeforeAdd(PipelineHandler handler)
 	{
 		if( !(handler instanceof PipelineLifeCycleHandler) )
 			return;
-		
-		((PipelineLifeCycleHandler)handler).beforeAdd(this);
+
+		((PipelineLifeCycleHandler) handler).beforeAdd(this);
 	}
-	
+
 	private void callAfterAdd(PipelineHandler handler)
 	{
 		if( !(handler instanceof PipelineLifeCycleHandler) )
 			return;
-		
-		((PipelineLifeCycleHandler)handler).afterAdd(this);
+
+		((PipelineLifeCycleHandler) handler).afterAdd(this);
 	}
-	
+
 	private void callBeforeRemove(PipelineHandler handler)
 	{
 		if( !(handler instanceof PipelineLifeCycleHandler) )
 			return;
-		
-		((PipelineLifeCycleHandler)handler).beforeRemove(this);
+
+		((PipelineLifeCycleHandler) handler).beforeRemove(this);
 	}
-	
+
 	private void callAfterRemove(PipelineHandler handler)
 	{
 		if( !(handler instanceof PipelineLifeCycleHandler) )
 			return;
-		
-		((PipelineLifeCycleHandler)handler).afterRemove(this);
+
+		((PipelineLifeCycleHandler) handler).afterRemove(this);
 	}
-	
+
 	@Override
 	public Channel getChannel()
 	{
 		return channel;
 	}
 
-	@Override
-	public void setChannel(Channel channel)
+	private class HandlerContext implements PipelineHandlerContext
 	{
-		this.channel = channel;
-	}
-	
-	private class Entry
-	{
-		public String name;
-		public Entry prev;
-		public Entry next;
-		public PipelineHandler handler;
-		
-		public Entry(String name, Entry prev, Entry next, PipelineHandler handler)
+		public String				name;
+		public HandlerContext	prev;
+		public HandlerContext	next;
+
+		private PipelineHandler	handler;
+		private Pipeline			pipeline;
+
+		public HandlerContext(String name, HandlerContext prev,
+				HandlerContext next, PipelineHandler handler, Pipeline pipeline)
 		{
 			if( name == null || handler == null )
 				throw new NullPointerException();
-				
+
 			this.name = name;
 			this.prev = prev;
 			this.next = next;
 			this.handler = handler;
+			this.pipeline = pipeline;
+		}
+
+		@Override
+		public boolean isUpstreamHander()
+		{
+			return handler instanceof PipelineUpstreamHandler;
+		}
+
+		@Override
+		public boolean isDownstreamHander()
+		{
+			return handler instanceof PipelineDownstreamHandler;
+		}
+
+		@Override
+		public void sendDownstream(ChannelEvent event) throws Exception
+		{
+			HandlerContext entry = prev;
+
+			while( entry != null )
+			{
+				if( entry.handler instanceof PipelineDownstreamHandler )
+				{
+					PipelineDownstreamHandler upstreamHandler = (PipelineDownstreamHandler) entry.handler;
+					upstreamHandler.onDownstreamEvent(event, entry);
+					return;
+				}
+
+				entry = entry.prev;
+			}
+
+			pipeline.getChannel().finalWrite(event);
+		}
+
+		@Override
+		public void sendUpstream(ChannelEvent event) throws Exception
+		{
+			HandlerContext entry = next;
+
+			while( entry != null )
+			{
+				if( entry.handler instanceof PipelineUpstreamHandler )
+				{
+					PipelineUpstreamHandler upstreamHandler = (PipelineUpstreamHandler) entry.handler;
+					upstreamHandler.onUpstreamEvent(event, entry);
+					return;
+				}
+
+				entry = entry.next;
+			}
+		}
+
+		@Override
+		public Pipeline getPipline()
+		{
+			return pipeline;
+		}
+
+		@Override
+		public PipelineHandler getHandler()
+		{
+			return handler;
+		}
+
+		@Override
+		public ChannelEventFuture sendDownstream(Object message) throws Exception
+		{
+			ChannelMessageEvent event = new ChannelMessageEvent(
+					pipeline.getChannel(), message);
+			sendDownstream(event);
+			return event.getFuture();
+		}
+
+		@Override
+		public ChannelEventFuture sendUpstream(Object message) throws Exception
+		{
+			ChannelMessageEvent event = new ChannelMessageEvent(
+					pipeline.getChannel(), message);
+			sendUpstream(event);
+			return event.getFuture();
 		}
 	}
 }

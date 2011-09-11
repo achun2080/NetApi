@@ -171,18 +171,18 @@ public class DynamicIOBuffer extends AbstractIOBuffer
 
 	public static DynamicIOBuffer create()
 	{
-		DynamicIOBuffer buffer = queue.poll();
-
-		if( buffer != null )
-		{
-			buffer.referenceCounter = 1;
-			buffer.observerList = null;
-			buffer.clear();
-
-			queueSize.addAndGet(-buffer.capacity());
-		}
-		else
-			buffer = new DynamicIOBuffer();
+//		DynamicIOBuffer buffer = queue.poll();
+//
+//		if( buffer != null )
+//		{
+//			buffer.referenceCounter = 1;
+//			buffer.observerList = null;
+//			buffer.clear();
+//
+//			queueSize.addAndGet(-buffer.capacity());
+//		}
+//		else
+		DynamicIOBuffer buffer = new DynamicIOBuffer();
 		
 		return buffer;
 	}

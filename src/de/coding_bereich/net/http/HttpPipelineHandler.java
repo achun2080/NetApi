@@ -4,37 +4,38 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import de.coding_bereich.net.channel.ChannelMessageEvent;
-import de.coding_bereich.net.channel.ChannelEvent;
-import de.coding_bereich.net.channel.pipeline.PipelineUpstreamHandler;
+import de.coding_bereich.net.channel.pipeline.PipelineHandlerContext;
+import de.coding_bereich.net.channel.pipeline.PipelineMessageUpstreamHandler;
+
 /**
  * Verwaltet die HTTP-Listener.
+ * 
  * @author Thomas
- *
+ * 
  */
-public class HttpPipelineHandler implements PipelineUpstreamHandler
+public class HttpPipelineHandler extends PipelineMessageUpstreamHandler
 {
-	private LinkedList<HttpHandler> handlerList = new LinkedList<HttpHandler>();
-	
-	
+	private LinkedList<HttpHandler>	handlerList	= new LinkedList<HttpHandler>();
+
 	@Override
-	public boolean onUpstreamEvent(ChannelEvent oEvent) throws Exception
+	public void onUpstreamMessageEvent(ChannelMessageEvent event,
+													PipelineHandlerContext context)
+			throws Exception
 	{
-		if( !(oEvent instanceof ChannelMessageEvent) )
-			return true;
-
-		ChannelMessageEvent event = (ChannelMessageEvent) oEvent;
-
 		if( !(event.getMessage() instanceof HttpRequest) )
-			return true;
+		{
+			context.sendUpstream(event);
+			return;
+		}
 
 		HttpRequest req = (HttpRequest) event.getMessage();
 
 		HttpResponse res = req.getResponse();
-		
+
 		Iterator<HttpHandler> it = handlerList.iterator();
-		
+
 		boolean found = false;
-		
+
 		while( it.hasNext() )
 		{
 			if( it.next().onRequest(req, res) )
@@ -43,20 +44,19 @@ public class HttpPipelineHandler implements PipelineUpstreamHandler
 				break;
 			}
 		}
-		
+
 		if( !found )
 		{
 			res.setCode(404);
 			res.setBodyBuffer(null);
 		}
-		
+
 		event.getChannel().write(res);
-		
-		return true;
 	}
-	
+
 	/**
 	 * Fügt einen Listener hinzu.
+	 * 
 	 * @param handler
 	 */
 	public void addHandler(HttpHandler handler)

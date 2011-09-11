@@ -33,9 +33,9 @@ public class CharsetEncoder
 		CharBuffer cb;
 		
 		Thread thread = Thread.currentThread();
-		boolean useTreadVars = thread instanceof CharsetDecoderEncoderThread;
+		boolean useThreadVars = thread instanceof CharsetDecoderEncoderThread;
 		
-		if( useTreadVars )
+		if( useThreadVars )
 		{
 			CharsetDecoderEncoderThread thread1 = ((CharsetDecoderEncoderThread) thread);
 			bb = thread1.getTempArrayByteBuffer();
@@ -53,7 +53,7 @@ public class CharsetEncoder
 		e.onMalformedInput(CodingErrorAction.REPLACE);
 		e.onUnmappableCharacter(CodingErrorAction.REPLACE);
 
-		if( !useTreadVars )
+		if( !useThreadVars )
 			lock.lock();
 		
 		try
@@ -96,7 +96,7 @@ public class CharsetEncoder
 		}
 		finally
 		{
-			if( !useTreadVars )
+			if( !useThreadVars )
 				lock.unlock();
 		}
 	}

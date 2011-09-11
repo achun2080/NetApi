@@ -17,11 +17,6 @@ public interface Channel
 	 * @param event Das Events.
 	 */
 	public void finalWrite(ChannelEvent event);
-	/**
-	 * Das endgültige Verschicken(verarbeitung) einer Nachricht.
-	 * @param message Das Nachrichten-Objekt.
-	 */
-	public ChannelEventFuture finalWrite(Object message);
 	
 	/**
 	 * Löst die Verarbeitung durch einen Handler aus.

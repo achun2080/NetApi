@@ -3,16 +3,15 @@ package de.coding_bereich.net.channel.pipeline;
 import de.coding_bereich.net.buffer.IOBuffer;
 import de.coding_bereich.net.buffer.IOBufferChain;
 import de.coding_bereich.net.buffer.exception.BufferUnderflowException;
-import de.coding_bereich.net.channel.ChannelEvent;
 import de.coding_bereich.net.channel.ChannelMessageEvent;
 
-public abstract class PipelineDecoder<S extends Enum<?>> implements
-		PipelineUpstreamHandler
+public abstract class PipelineDecoder<S extends Enum<?>> extends
+		PipelineMessageUpstreamHandler
 {
-	private S			stdState;
-	private S			state;
+	private S					stdState;
+	private S					state;
 
-	private int			readPos		= 0;
+	private int					readPos		= 0;
 
 	private IOBufferChain	bufferChain	= new IOBufferChain();
 
@@ -22,49 +21,49 @@ public abstract class PipelineDecoder<S extends Enum<?>> implements
 	}
 
 	@Override
-	public boolean onUpstreamEvent(ChannelEvent oEvent) throws Exception
+	public void onUpstreamMessageEvent(ChannelMessageEvent event,
+													PipelineHandlerContext context)
+			throws Exception
 	{
-		if( !(oEvent instanceof ChannelMessageEvent) )
-			return false;
-		
-		ChannelMessageEvent event = (ChannelMessageEvent) oEvent;
-		
 		if( !(event.getMessage() instanceof IOBuffer) )
-			return true;
-		
+		{
+			context.sendUpstream(event);
+			return;
+		}
+
 		IOBuffer buffer = (IOBuffer) event.getMessage();
-		
+
 		bufferChain.getLock().lock();
 
 		try
 		{
 			bufferChain.addBuffer(buffer);
-			
+
 			event.getFuture().onSuccess();
-			
+
 			while( bufferChain.hasReadableBytes() )
 			{
 				Object result;
-				
+
 				try
 				{
 					result = decode(state, bufferChain, event);
 				}
 				catch(BufferUnderflowException e)
-				{		
+				{
 					bufferChain.setReadPosition(readPos);
 					break;
 				}
-				
+
 				if( result == null )
 					continue;
 
 				state = stdState;
-				
-				event.getChannel().fireIncomingEvent(
-						new ChannelMessageEvent(event.getChannel(), result));
+
+				context.sendUpstream(new ChannelMessageEvent(event.getChannel(),
+						result));
 			}
-			
+
 			if( !bufferChain.hasReadableBytes() )
 			{
 				readPos = 0;
@@ -75,7 +74,6 @@ public abstract class PipelineDecoder<S extends Enum<?>> implements
 		{
 			bufferChain.getLock().unlock();
 		}
-		return false;
 	}
 
 	protected void checkpoint()
@@ -89,6 +87,6 @@ public abstract class PipelineDecoder<S extends Enum<?>> implements
 		readPos = bufferChain.getReadPosition();
 	}
 
-	abstract protected Object decode(S state, IOBuffer buffer, ChannelMessageEvent event)
-			throws Exception;
+	abstract protected Object decode(S state, IOBuffer buffer,
+												ChannelMessageEvent event) throws Exception;
 }

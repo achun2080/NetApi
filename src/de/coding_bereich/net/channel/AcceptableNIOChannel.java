@@ -66,7 +66,7 @@ public class AcceptableNIOChannel extends AbstractNIOChannel
 				
 				Channel channel = new ReadWritableNIOChannel(socketChannel, dispatcher);	
 				if( handlerFactory != null )
-					channel.setHandler(handlerFactory.getHandler());
+					channel.setHandler(handlerFactory.getHandler(channel));
 			}
 		}
 		catch(Exception e)

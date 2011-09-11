@@ -7,14 +7,13 @@ public abstract class PipelineMessageDownstreamHandler implements PipelineDownst
 {
 
 	@Override
-	public boolean onDownstreamEvent(ChannelEvent oEvent) throws Exception
+	public void onDownstreamEvent(ChannelEvent event, PipelineHandlerContext context) throws Exception
 	{
-		if( oEvent instanceof ChannelMessageEvent )
-			return onDownstreamMessageEvent((ChannelMessageEvent)oEvent);
-		
-		return true;
+		if( event instanceof ChannelMessageEvent )
+			onDownstreamMessageEvent((ChannelMessageEvent)event, context);
+		else
+			context.sendUpstream(event);
 	}
-
 	
-	abstract public boolean onDownstreamMessageEvent(ChannelMessageEvent event)  throws Exception;
+	abstract public void onDownstreamMessageEvent(ChannelMessageEvent event, PipelineHandlerContext context)  throws Exception;
 }

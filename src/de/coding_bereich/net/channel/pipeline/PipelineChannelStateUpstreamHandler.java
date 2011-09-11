@@ -1,20 +1,21 @@
 package de.coding_bereich.net.channel.pipeline;
 
-import de.coding_bereich.net.channel.ChannelStateEvent;
+import de.coding_bereich.net.channel.ChannelMessageEvent;
 import de.coding_bereich.net.channel.ChannelEvent;
+import de.coding_bereich.net.channel.ChannelStateEvent;
 
-public abstract class PipelineChannelStateUpstreamHandler
-	implements PipelineUpstreamHandler
+public abstract class PipelineChannelStateUpstreamHandler implements PipelineUpstreamHandler
 {
 
 	@Override
-	public boolean onUpstreamEvent(ChannelEvent oEvent) throws Exception
+	public void onUpstreamEvent(ChannelEvent event, PipelineHandlerContext context) throws Exception
 	{
-		if( oEvent instanceof ChannelStateEvent )
-			return false;
-		
-		return onUpsteamChannelStateEvent((ChannelStateEvent) oEvent);
+		if( event instanceof ChannelStateEvent )
+			onUpstreamChannelState((ChannelMessageEvent)event, context);
+		else
+			context.sendUpstream(event);
 	}
 
-	abstract public boolean onUpsteamChannelStateEvent(ChannelStateEvent oEvent);
+	
+	abstract public void onUpstreamChannelState(ChannelMessageEvent event, PipelineHandlerContext context)  throws Exception;
 }

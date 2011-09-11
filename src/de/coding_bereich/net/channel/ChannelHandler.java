@@ -20,5 +20,4 @@ public interface ChannelHandler
 	public void onOutgoingMessage(ChannelEvent event);
 
 	public Channel getChannel();
-	public void setChannel(Channel channel);
 }

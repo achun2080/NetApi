@@ -81,14 +81,6 @@ public abstract class AbstractChannel implements Channel
 		write(event);
 		return event.getFuture();
 	}
-	
-	@Override
-	public ChannelEventFuture finalWrite(Object message)
-	{
-		ChannelMessageEvent event = new ChannelMessageEvent(this, message);
-		finalWrite(event);
-		return event.getFuture();
-	}
 
 	@Override
 	public void write(ChannelEvent event)

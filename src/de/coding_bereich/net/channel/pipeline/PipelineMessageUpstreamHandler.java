@@ -7,14 +7,13 @@ public abstract class PipelineMessageUpstreamHandler implements PipelineUpstream
 {
 
 	@Override
-	public boolean onUpstreamEvent(ChannelEvent oEvent) throws Exception
+	public void onUpstreamEvent(ChannelEvent event, PipelineHandlerContext context) throws Exception
 	{
-		if( oEvent instanceof ChannelMessageEvent )
-			return onUpstreamMessageEvent((ChannelMessageEvent)oEvent);
-		
-		return true;
+		if( event instanceof ChannelMessageEvent )
+			onUpstreamMessageEvent((ChannelMessageEvent)event, context);
+		else
+			context.sendUpstream(event);
 	}
-
 	
-	abstract public boolean onUpstreamMessageEvent(ChannelMessageEvent event)  throws Exception;
+	abstract public void onUpstreamMessageEvent(ChannelMessageEvent event, PipelineHandlerContext context)  throws Exception;
 }

@@ -21,12 +21,12 @@ public class ReadWritableNIOChannel extends AbstractNIOChannel
 		this.nioChannel = channel;
 
 		registerToDispatcher(dispatcher);
-		
+
 		fireOpen();
-		
+
 		if( isBound() )
 			fireBind(getLocalAddress());
-		
+
 		if( isConnected() )
 			fireConnect(getRemoteAddress());
 	}
@@ -35,12 +35,12 @@ public class ReadWritableNIOChannel extends AbstractNIOChannel
 	{
 		channel.configureBlocking(false);
 		this.nioChannel = channel;
-		
+
 		fireOpen();
-		
+
 		if( isBound() )
 			fireBind(getLocalAddress());
-		
+
 		if( isConnected() )
 			fireConnect(getRemoteAddress());
 	}
@@ -50,11 +50,11 @@ public class ReadWritableNIOChannel extends AbstractNIOChannel
 		SocketChannel channel = SocketChannel.open(addr);
 		channel.configureBlocking(false);
 		this.nioChannel = channel;
-		
+
 		fireOpen();
-		
+
 		fireBind(getLocalAddress());
-		
+
 		fireConnect(addr);
 	}
 
@@ -80,7 +80,7 @@ public class ReadWritableNIOChannel extends AbstractNIOChannel
 				try
 				{
 					eof = inputBuffer.write((ReadableByteChannel) nioChannel,
-							byteBuffer);
+													byteBuffer);
 				}
 				finally
 				{
@@ -144,9 +144,9 @@ public class ReadWritableNIOChannel extends AbstractNIOChannel
 
 		ByteBuffer byteBuffer = dispatcher.pollByteBuffer();
 		try
-		{
-			int writtenBytes = buffer.read((WritableByteChannel) nioChannel,
-					byteBuffer);
+		{			
+			int writtenBytes = buffer.read(	(WritableByteChannel) nioChannel,
+														byteBuffer);
 
 			if( writtenBytes > 0 )
 				fireIncomingEvent(new ChannelBytesWrittenEvent(this, writtenBytes));
@@ -188,7 +188,7 @@ public class ReadWritableNIOChannel extends AbstractNIOChannel
 		super.close0();
 		fireClose();
 	}
-	
+
 	@Override
 	protected void bind0(SocketAddress addr) throws Exception
 	{

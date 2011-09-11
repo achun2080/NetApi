@@ -12,5 +12,5 @@ public interface ChannelEventHandlerFactory
 	 * Gibt den neuen Handler zurück.
 	 * @return Der Handler.
 	 */
-	public ChannelHandler getHandler();
+	public ChannelHandler getHandler(Channel channel);
 }

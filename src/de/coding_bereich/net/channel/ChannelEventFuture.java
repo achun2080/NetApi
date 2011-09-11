@@ -7,7 +7,7 @@ import java.util.List;
 public class ChannelEventFuture
 {
 	private List<ChannelEventFutureListener>	listeners	= new LinkedList<ChannelEventFutureListener>();
-	private ChannelEvent							event;
+	private ChannelEvent								event;
 	private Exception									exception	= null;
 	private boolean									success		= false;
 	private boolean									cancel		= false;
@@ -84,7 +84,11 @@ public class ChannelEventFuture
 		return true;
 	}
 
-	synchronized public boolean onCancel()
+	/**
+	 * Bricht alle IO-Tasks ab.
+	 * @return
+	 */
+	synchronized public boolean cancel()
 	{
 		if( done )
 			return false;
@@ -99,7 +103,7 @@ public class ChannelEventFuture
 	private void onAction()
 	{
 		notifyAll();
-		
+
 		Iterator<ChannelEventFutureListener> it = listeners.iterator();
 
 		while( it.hasNext() )
