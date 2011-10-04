@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import de.coding_bereich.net.buffer.DynamicIOBuffer;
 import de.coding_bereich.net.buffer.IOBuffer;
 import de.coding_bereich.net.buffer.exception.BufferUnderflowException;
+import de.coding_bereich.net.channel.Channel;
 import de.coding_bereich.net.channel.ChannelMessageEvent;
 import de.coding_bereich.net.channel.pipeline.PipelineDecoder;
 
@@ -41,7 +42,7 @@ public class HttpRequestDecoder extends
 
 	@Override
 	protected Object decode(State state, IOBuffer buffer,
-									ChannelMessageEvent event) throws Exception
+									Channel channel) throws Exception
 	{
 		try
 		{
@@ -51,7 +52,7 @@ public class HttpRequestDecoder extends
 			{
 				case HEADER_FIRST_LINE:
 					if( request == null )
-						request = new HttpRequest(event.getChannel());
+						request = new HttpRequest(channel);
 
 					line = buffer
 							.readDelimitedString(LINE_DELIMITER, HEADER_CHARSET);
@@ -81,7 +82,7 @@ public class HttpRequestDecoder extends
 
 					if( !matcher.find() )
 					{
-						onDecodeError(request, "URL-PARSE ERROR", event);
+						onDecodeError(request, "URL-PARSE ERROR", channel);
 						return null;
 					}
 
@@ -92,7 +93,7 @@ public class HttpRequestDecoder extends
 
 					if( request.getHeader("host") == null && host == null )
 					{
-						onDecodeError(request, "HOST not set", event);
+						onDecodeError(request, "HOST not set", channel);
 						return null;
 					}
 
@@ -144,7 +145,7 @@ public class HttpRequestDecoder extends
 						{
 							onDecodeError(	request,
 												"POST-Request: Content-Length is not set",
-												event);
+												channel);
 							return null;
 						}
 
@@ -157,6 +158,7 @@ public class HttpRequestDecoder extends
 
 					HttpRequest req = request;
 					request = null;
+					checkpoint();
 					return req;
 			}
 		}
@@ -167,7 +169,7 @@ public class HttpRequestDecoder extends
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			onDecodeError(request, "PASRSE ERROR", event);
+			onDecodeError(request, "PASRSE ERROR", channel);
 		}
 
 		return null;
@@ -195,7 +197,7 @@ public class HttpRequestDecoder extends
 	}
 
 	private void onDecodeError(HttpRequest request, String error,
-										ChannelMessageEvent event)
+										Channel channel)
 	{
 		if( request == null )
 			return;
@@ -204,6 +206,6 @@ public class HttpRequestDecoder extends
 		response.setCode(400);
 		response.setBodyBuffer(DynamicIOBuffer.create());
 		response.getBodyBuffer().writeString(error, response.getInnerCharSet());
-		event.getChannel().write(response);
+		channel.write(response);
 	}
 }

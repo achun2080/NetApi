@@ -3,6 +3,7 @@ package de.coding_bereich.net.channel.pipeline;
 import de.coding_bereich.net.buffer.IOBuffer;
 import de.coding_bereich.net.buffer.IOBufferChain;
 import de.coding_bereich.net.buffer.exception.BufferUnderflowException;
+import de.coding_bereich.net.channel.Channel;
 import de.coding_bereich.net.channel.ChannelMessageEvent;
 
 public abstract class PipelineDecoder<S extends Enum<?>> extends
@@ -12,8 +13,9 @@ public abstract class PipelineDecoder<S extends Enum<?>> extends
 	private S					state;
 
 	private int					readPos		= 0;
-
 	private IOBufferChain	bufferChain	= new IOBufferChain();
+
+	private boolean			errorState	= false;
 
 	protected PipelineDecoder(S stdState)
 	{
@@ -25,12 +27,12 @@ public abstract class PipelineDecoder<S extends Enum<?>> extends
 													PipelineHandlerContext context)
 			throws Exception
 	{
-		if( !(event.getMessage() instanceof IOBuffer) )
+		if( !(event.getMessage() instanceof IOBuffer) || errorState )
 		{
 			context.sendUpstream(event);
 			return;
 		}
-
+		
 		IOBuffer buffer = (IOBuffer) event.getMessage();
 
 		bufferChain.getLock().lock();
@@ -47,18 +49,24 @@ public abstract class PipelineDecoder<S extends Enum<?>> extends
 
 				try
 				{
-					result = decode(state, bufferChain, event);
+					result = decode(state, bufferChain, event.getChannel());
 				}
 				catch(BufferUnderflowException e)
 				{
 					bufferChain.setReadPosition(readPos);
 					break;
 				}
+				catch(Exception e)
+				{
+					errorState = true;
+					context.sendUpstream(new ChannelMessageEvent(event.getChannel(),
+							new PipelineDecoderError(this, e)));
+
+					return;
+				}
 
 				if( result == null )
 					continue;
-
-				state = stdState;
 
 				context.sendUpstream(new ChannelMessageEvent(event.getChannel(),
 						result));
@@ -79,6 +87,7 @@ public abstract class PipelineDecoder<S extends Enum<?>> extends
 	protected void checkpoint()
 	{
 		state = stdState;
+		readPos = bufferChain.getReadPosition();
 	}
 
 	protected void checkpoint(S state)
@@ -86,7 +95,12 @@ public abstract class PipelineDecoder<S extends Enum<?>> extends
 		this.state = state;
 		readPos = bufferChain.getReadPosition();
 	}
+	
+	public boolean isInErrorState()
+	{
+		return errorState;
+	}
 
-	abstract protected Object decode(S state, IOBuffer buffer,
-												ChannelMessageEvent event) throws Exception;
+	abstract protected Object decode(S state, IOBuffer buffer, Channel channel)
+			throws Exception;
 }
