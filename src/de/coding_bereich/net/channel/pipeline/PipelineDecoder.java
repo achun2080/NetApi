@@ -60,7 +60,7 @@ public abstract class PipelineDecoder<S extends Enum<?>> extends
 				{
 					errorState = true;
 					context.sendUpstream(new ChannelMessageEvent(event.getChannel(),
-							new PipelineDecoderError(this, e)));
+							new PipelineDecoderErrorMessage(this, e)));
 
 					return;
 				}

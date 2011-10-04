@@ -1,11 +1,11 @@
 package de.coding_bereich.net.channel.pipeline;
 
-public class PipelineDecoderError
+public class PipelineDecoderErrorMessage
 {
 	private PipelineDecoder<?> decoder;
 	private Exception exception;
 	
-	public PipelineDecoderError(PipelineDecoder<?> decoder, Exception exception)
+	public PipelineDecoderErrorMessage(PipelineDecoder<?> decoder, Exception exception)
 	{
 		this.decoder = decoder;
 		this.exception = exception;
